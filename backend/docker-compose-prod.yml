@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  server-web:
+    image: laravel-app:latest # Tu imagen pre-construida con tu código
+    restart: always
+    command: ["php", "artisan", "octane:start", "--server=roadrunner", "--host=0.0.0.0", "--port=8000", "--workers=auto", "--task-workers=auto"]
+    ports:
+      - "8000:8000" # Solo para pruebas internas, no es necesario exponerlo al público
+    env_file:
+      - .env.docker # Lee las credenciales de un archivo seguro
+    depends_on:
+      - pgsql-prod
+      - redis
+    networks:
+      - prod_network
+
+  # 3. EL SUPERVISOR DE COLAS (Horizon)
+  # Procesa los Excel y correos en segundo plano
+  horizon:
+    image: laravel-app:latest
+    container_name: produccion_horizon
+    restart: always
+    command: ["php", "artisan", "horizon"]
+    env_file:
+      - .env.docker
+    depends_on:
+      - pgsql-prod
+      - redis
+    networks:
+      - prod_network
+
+  # 4. EL RELOJ DEL SISTEMA (Scheduler)
+  # Dispara las tareas cron programadas
+  scheduler:
+    image: laravel-app:latest
+    container_name: produccion_scheduler
+    restart: always
+    command: ["php", "artisan", "schedule:work"]
+    env_file:
+      - .env.docker
+    depends_on:
+      - pgsql-prod
+      - redis
+    networks:
+      - prod_network
+
+  # 5. CACHÉ, SESIONES Y COLAS (Redis)
+  redis:
+    image: redis:latest
+    container_name: produccion_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_prod_data:/data
+    networks:
+      - prod_network
+
+  # 6. BASE DE DATOS (PostgreSQL)
+  pgsql-prod:
+    image: postgres:17
+    container_name: produccion_pgsql
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgsql_prod_data:/var/lib/postgresql/data
+    networks:
+      - prod_network
+
+# Volúmenes persistentes gestionados por Docker
+volumes:
+  pgsql_prod_data:
+  redis_prod_data:
+
+# Red interna privada (Nada de esto es accesible desde fuera, excepto Envoy)
+networks:
+  prod_network:
+    driver: bridge

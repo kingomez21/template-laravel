@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  laravel-db:
+    image: postgres:17
+    container_name: laravel_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-laravel_db}
+      POSTGRES_USER: ${DB_USERNAME:-user123}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-qwerty123}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data
+    networks:
+      - dev_network
+
+  # 2. Caché y Colas: Redis
+  laravel-redis:
+    image: redis:latest
+    container_name: laravel_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dev_network
+
+  laravel-pgadmin:
+    image: dpage/pgadmin4:9.1.0
+    container_name: laravel_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-laravel@dev.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-laravel123}
+    ports:
+      - "4000:80"
+    depends_on:
+      - laravel-db
+    networks:
+      - dev_network
+    restart: unless-stopped
+
+# Volúmenes para no perder la información si apagas tu PC
+volumes:
+  pgsql_data:
+  redis_data:
+
+networks:
+  dev_network:
+    driver: bridge

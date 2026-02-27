@@ -34,7 +34,7 @@ class MakeModuleCommand extends Command
         $directories = [
             'Console',
             'Controllers',
-            'Database/Migrations',
+            'Migrations',
             'Exports',
             'Imports',
             'Interfaces',
@@ -62,7 +62,7 @@ class MakeModuleCommand extends Command
 
     protected function generateServiceProvider($name, $modulePath)
     {
-        $stub = "<?php\n\nnamespace Modules\\{$name}\\Providers;\n\nuse Illuminate\\Support\\ServiceProvider;\nuse Illuminate\\Support\\Facades\\Route;\n\nclass {$name}ServiceProvider extends ServiceProvider\n{\n    public function register(): void\n    {\n        \$this->app->bind(\n            \\Modules\\{$name}\\Interfaces\\{$name}ServiceInterface::class,\n            \\Modules\\{$name}\\Services\\{$name}Service::class\n        );\n    }\n\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');\n        \n        Route::prefix('api/" . Str::lower($name) . "')\n            ->middleware('api')\n            ->group(__DIR__ . '/../Routes/api.php');\n    }\n}\n";
+        $stub = "<?php\n\nnamespace Modules\\{$name}\\Providers;\n\nuse Illuminate\\Support\\ServiceProvider;\nuse Illuminate\\Support\\Facades\\Route;\n\nclass {$name}ServiceProvider extends ServiceProvider\n{\n    public function register(): void\n    {\n        \$this->app->bind(\n            \\Modules\\{$name}\\Interfaces\\{$name}ServiceInterface::class,\n            \\Modules\\{$name}\\Services\\{$name}Service::class\n        );\n    }\n\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Migrations');\n        \n        Route::prefix('api/" . Str::lower($name) . "')\n            ->middleware('api')\n            ->group(__DIR__ . '/../Routes/api.php');\n    }\n}\n";
 
         File::put("{$modulePath}/Providers/{$name}ServiceProvider.php", $stub);
     }
