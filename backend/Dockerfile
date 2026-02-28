@@ -5,6 +5,8 @@ FROM php:8.3-cli-bullseye
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libzip-dev \
     unzip \
     git \
@@ -12,10 +14,14 @@ RUN apt-get update && apt-get install -y \
 
 # 3. Instalamos las extensiones de PHP necesarias
 # pcntl y sockets son OBLIGATORIAS para Octane y Horizon
-RUN docker-php-ext-install pdo_pgsql pcntl sockets gd zip
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo_pgsql pcntl sockets gd zip
 
 # 4. Instalamos la extensión de Redis vía PECL
 RUN pecl install redis && docker-php-ext-enable redis
+
+# 4.5. instalamos la extensión de GD para PHP 8.3 (si no se instaló correctamente con docker-php-ext-install)
+#RUN sudo apt-get install php8.3-gd
 
 # 5. Descargamos Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
