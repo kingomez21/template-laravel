@@ -39,8 +39,7 @@ Bienvenido al backend del proyecto (Laravel 12). Este README explica cómo levan
 4. Genera la clave de la aplicación, ejecuta migraciones y crea el enlace de storage:
 
    php artisan key:generate
-   php artisan migrate --seed
-   php artisan storage:link
+   php artisan migrate
 
 5. Compila activos (opcional en desarrollo):
 
@@ -48,7 +47,15 @@ Bienvenido al backend del proyecto (Laravel 12). Este README explica cómo levan
 
 6. Levanta el servidor:
 
-   php artisan serve --host=0.0.0.0 --port=8000
+   php artisan octane:start --watch
+
+7. Servidor Horizon
+
+   php artisan horizon
+
+8. Ejecutar tareas programadas
+
+   php artisan schedule:work
 
 ## Uso con Docker (dev)
 
@@ -58,7 +65,7 @@ Bienvenido al backend del proyecto (Laravel 12). Este README explica cómo levan
 
 Comando típico:
 
-   docker-compose -f docker-compose-dev.yml up -d
+   docker-compose -p {name} -f docker-compose-dev.yml up -d
 
 Luego configura `.env` para apuntar a las credenciales del contenedor (host: `127.0.0.1` o `localhost` según tu Docker), o usa los valores por defecto que están en `docker-compose-dev.yml`.
 
@@ -71,7 +78,7 @@ Luego configura `.env` para apuntar a las credenciales del contenedor (host: `12
 Comando típico (después de construir la imagen):
 
    docker build -t laravel-app:latest .
-   docker-compose -f docker-compose-prod.yml up -d
+   docker-compose -p {name} -f docker-compose-prod.yml up -d
 
 ## Breve explicación del Dockerfile
 
