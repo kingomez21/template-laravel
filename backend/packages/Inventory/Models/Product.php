@@ -2,9 +2,19 @@
 
 namespace Inventory\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Util\TenantModel;
 
-class Product extends Model
+class Product extends TenantModel
 {
     protected $guarded = [];
+
+    protected $table = 'products';
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'name',
+        'price',
+        'description',
+        'in_stock',
+    ];
 }

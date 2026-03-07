@@ -19,6 +19,7 @@ class SalesServiceProvider extends ServiceProvider
     {
         Route::prefix('api/sales')
             ->middleware('api')
+            ->middleware('tenant')
             ->group(__DIR__ . '/routes.php');
     }
 }

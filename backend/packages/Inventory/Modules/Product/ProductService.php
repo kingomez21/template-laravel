@@ -2,6 +2,8 @@
 
 namespace Inventory\Modules\Product;
 
+use Inventory\Models\Product;
+
 class ProductService implements IProduct
 {
     public function __construct()
@@ -11,10 +13,13 @@ class ProductService implements IProduct
 
     public function getProducts(): array
     {
-        // Implementa la lógica para obtener los productos
-        return [
-            ['id' => 1, 'name' => 'Producto 1', 'price' => 100],
-            ['id' => 2, 'name' => 'Producto 2', 'price' => 200],
-        ];
+       $products = Product::all();
+       return $products->toArray();
+    }
+
+    public function createProduct(array $data): array
+    {
+        $product = Product::create($data);
+        return $product->toArray();
     }
 }

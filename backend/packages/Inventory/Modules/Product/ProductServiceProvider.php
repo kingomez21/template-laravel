@@ -19,6 +19,7 @@ class ProductServiceProvider extends ServiceProvider
     {
         Route::prefix('api/product')
             ->middleware('api')
+            ->middleware('tenant')
             ->group(__DIR__ . '/routes.php');
     }
 }

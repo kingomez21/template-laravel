@@ -22,8 +22,8 @@ class MigrateTenantsCommand extends Command
      *   $this->tenants = Tenant::all()->map(fn($t) => ['name' => $t->name, 'schema' => $t->schema])->toArray();
      */
     private array $tenants = [
-        ['name' => 'Empresa A', 'schema' => 'empresa_a'],
-        ['name' => 'Empresa B', 'schema' => 'empresa_b'],
+        ['name' => 'Testing', 'schema' => 'laravel_app'],
+        //['name' => 'Empresa B', 'schema' => 'empresa_b'],
     ];
 
     public function handle(): int
