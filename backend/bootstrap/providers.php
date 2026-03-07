@@ -1,7 +1,11 @@
 <?php
 
+use Core\CoreServiceProvider;
+use Inventory\InventoryServiceProvider;
+
 return [
     App\Providers\AppServiceProvider::class,
     App\Providers\HorizonServiceProvider::class,
-    Modules\Inventario\Providers\InventarioServiceProvider::class,
+    CoreServiceProvider::class,
+    InventoryServiceProvider::class,
 ];
