@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace Core\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +12,12 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
+
+    /**
+     * Forzar conexión pgsql para que el search_path del tenant sea efectivo.
+     * TenantMiddleware setea el schema antes de que auth:sanctum resuelva el usuario.
+     */
+    protected $connection = 'pgsql';
 
     /**
      * The attributes that are mass assignable.

@@ -23,6 +23,7 @@ class UserServiceProvider extends ServiceProvider
     {
         Route::prefix('api/users')
             ->middleware('api')
+            ->middleware('tenant')
             ->group(__DIR__ . '/routes.php');
     }
 }

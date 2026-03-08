@@ -16,16 +16,6 @@ class MigrateTenantsCommand extends Command
 
     protected $description = 'Ejecuta las migraciones de todos los paquetes en cada schema de tenant (PostgreSQL)';
 
-    /**
-     * Array de tenants para pruebas.
-     * TODO: reemplazar con consulta a la tabla `tenants` cuando exista:
-     *   $this->tenants = Tenant::all()->map(fn($t) => ['name' => $t->name, 'schema' => $t->schema])->toArray();
-     */
-    private array $tenants = [
-        ['name' => 'Testing', 'schema' => 'laravel_app'],
-        //['name' => 'Empresa B', 'schema' => 'empresa_b'],
-    ];
-
     public function handle(): int
     {
         $tenants = $this->resolveTenants();
@@ -89,7 +79,7 @@ class MigrateTenantsCommand extends Command
 
         // Restaurar search_path por defecto al terminar
         config(['database.connections.pgsql.search_path' => 'public']);
-        DB::purge('pgsql');
+        DB::connection('pgsql')->statement('SET search_path TO public');
 
         if (!empty($failed)) {
             $this->error('Los siguientes tenants fallaron: ' . implode(', ', $failed));
@@ -101,27 +91,41 @@ class MigrateTenantsCommand extends Command
     }
 
     /**
-     * Resuelve la lista de tenants según la opción --tenant.
+     * Resuelve la lista de tenants desde la tabla `tenants` en la BD principal.
+     * Filtra por schema si se pasa --tenant=schema_name.
      */
     private function resolveTenants(): array
     {
-        $specific = $this->option('tenant');
+        try {
+            $query = DB::connection('pgsql')
+                ->table('tenants')
+                ->select('name', 'schema');
 
-        if ($specific) {
-            $filtered = array_values(
-                array_filter($this->tenants, fn($t) => $t['schema'] === $specific)
-            );
+            $specific = $this->option('tenant');
 
-            if (empty($filtered)) {
-                $this->error("❌ No se encontró ningún tenant con schema '{$specific}'.");
-                $this->line('   Schemas disponibles: ' . implode(', ', array_column($this->tenants, 'schema')));
+            if ($specific) {
+                $query->where('schema', $specific);
+            }
+
+            $tenants = $query->get()->map(fn($t) => [
+                'name'   => $t->name,
+                'schema' => $t->schema,
+            ])->toArray();
+
+            if (empty($tenants)) {
+                if ($specific) {
+                    $this->error("❌ No se encontró ningún tenant con schema '{$specific}'.");
+                } else {
+                    $this->warn('⚠️  No hay tenants registrados en la tabla `tenants`.');
+                }
                 return [];
             }
 
-            return $filtered;
+            return $tenants;
+        } catch (\Throwable $e) {
+            $this->error('❌ Error al leer la tabla tenants: ' . $e->getMessage());
+            return [];
         }
-
-        return $this->tenants;
     }
 
     /**

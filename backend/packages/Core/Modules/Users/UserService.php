@@ -2,15 +2,13 @@
 
 namespace Core\Modules\Users;
 
+use Core\Models\User;
 
 class UserService implements IUser
 {
     public function getUsers()
     {
-        return [
-            ['id' => 1, 'name' => 'Juan Pérez', 'email' => 'juan.perez@example.com'],
-            ['id' => 2, 'name' => 'María Gómez', 'email' => 'maria.gomez@example.com'],
-        ];
+        return User::all()->toArray();
     }
 
     public function createUser($data)
