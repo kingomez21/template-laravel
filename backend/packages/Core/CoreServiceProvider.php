@@ -13,6 +13,7 @@ class CoreServiceProvider extends ServiceProvider
         // register other service providers here
         $this->app->register(UserServiceProvider::class);
 
+        $this->app->register(\Core\Modules\Auth\AuthServiceProvider::class);
     }
 }
 
