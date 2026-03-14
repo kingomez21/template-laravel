@@ -18,8 +18,7 @@ class ProductServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::prefix('api/product')
-            ->middleware('api')
-            ->middleware('tenant')
+            ->middleware(['api', 'tenant', 'auth:sanctum'])
             ->group(__DIR__ . '/routes.php');
     }
 }

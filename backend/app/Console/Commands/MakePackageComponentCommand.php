@@ -157,9 +157,9 @@ class MakePackageComponentCommand extends Command
 
 namespace {$namespace};
 
-use App\Util\TenantModel;
+use Illuminate\Database\Eloquent\Model;
 
-class {$className} extends TenantModel
+class {$className} extends Model
 {
     protected \$guarded = [];
 }

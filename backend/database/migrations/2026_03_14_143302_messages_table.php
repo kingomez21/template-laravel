@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tenants', function (Blueprint $table) {
+        Schema::create('messages', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('domain')->unique();
-            $table->string('schema')->unique();
-            $table->string('owner')->nullable();
-            $table->string('email')->nullable();
+            $table->string('code')->index("idx_code");
+            $table->text('msg_es');
+            $table->text('msg_en');
+            $table->boolean('is_active')->default(true);
+            $table->string('created_by')->nullable();
+            $table->string('updated_by')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tenants');
+        Schema::dropIfExists('messages');
     }
 };

@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Response;
 
 class TenantMiddleware
@@ -56,34 +55,25 @@ class TenantMiddleware
         // defecto puede ser sqlite. SET search_path aplica a la sesión activa.
         // También se actualiza el config para que reconexiones hereden el schema.
         // El método terminate() lo resetea al finalizar el request.
-        config(['database.connections.pgsql.search_path' => $schema]);
-        DB::connection('pgsql')->statement("SET search_path TO \"{$schema}\", public");
+        //config(['database.connections.pgsql.search_path' => $schema]);
+        //DB::connection('pgsql')->statement("SET search_path TO \"{$schema}\", public");
         // ─────────────────────────────────────────────────────────────────────
 
         // Exponer el schema en el request y en el contenedor de la app
-        $request->merge(['_tenant_schema' => $schema]);
+        $request->merge(['tenant' => $schema]);
         app()->instance('tenant.schema', $schema);
 
         return $next($request);
     }
 
-    /**
-     * Se ejecuta DESPUÉS de enviar la respuesta (Octane lo invoca correctamente).
-     * Resetea el search_path para que el worker quede limpio para el próximo request.
-     */
-    public function terminate(Request $request, Response $response): void
-    {
-        try {
-            config(['database.connections.pgsql.search_path' => 'public']);
-            DB::connection('pgsql')->statement('SET search_path TO public');
-        } catch (\Throwable) {
-            // Si la conexión ya fue cerrada o no se llegó a abrir, no hay nada que resetear
-        }
-    }
-
     private function resolveTenantSchema(Request $request): ?string
     {
-        // 1. Cabecera X-Tenant
+        // 1. Fallback local: si es localhost o APP_ENV=local, usar schema de desarrollo
+        if ($this->isLocalEnvironment($request)) {
+            return env('DEV_TENANT_SCHEMA', self::DEV_SCHEMA);
+        }
+
+        // 2. Cabecera X-Tenant
         if ($request->hasHeader(self::HEADER)) {
             $value = trim($request->header(self::HEADER));
             if ($value !== '') {
@@ -91,15 +81,10 @@ class TenantMiddleware
             }
         }
 
-        // 2. Subdominio
+        // 3. Subdominio
         $subdomain = $this->extractSubdomain($request->getHost());
         if ($subdomain !== null) {
             return $subdomain;
-        }
-
-        // 3. Fallback local: si es localhost o APP_ENV=local, usar schema de desarrollo
-        if ($this->isLocalEnvironment($request)) {
-            return env('DEV_TENANT_SCHEMA', self::DEV_SCHEMA);
         }
 
         return null;

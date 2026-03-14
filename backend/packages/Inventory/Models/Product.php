@@ -2,9 +2,9 @@
 
 namespace Inventory\Models;
 
-use App\Util\TenantModel;
+use Illuminate\Database\Eloquent\Model;
 
-class Product extends TenantModel
+class Product extends Model
 {
     protected $guarded = [];
 

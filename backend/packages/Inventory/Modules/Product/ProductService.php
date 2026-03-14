@@ -2,24 +2,23 @@
 
 namespace Inventory\Modules\Product;
 
+use App\Util\WithinSchema;
 use Inventory\Models\Product;
 
 class ProductService implements IProduct
 {
-    public function __construct()
-    {
-        // Inyecta dependencias si es necesario
-    }
-
+    
     public function getProducts(): array
     {
-       $products = Product::all();
-       return $products->toArray();
+        return WithinSchema::queryTenant(function () {
+            return Product::all()->toArray();
+        });
     }
 
     public function createProduct(array $data): array
     {
-        $product = Product::create($data);
-        return $product->toArray();
+        return WithinSchema::queryTenant(function () use ($data) {
+            return Product::create($data)->toArray();
+        });
     }
 }

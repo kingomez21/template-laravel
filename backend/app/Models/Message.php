@@ -4,22 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Tenant extends Model
+class Message extends Model
 {
-    protected $guarded = [];
-
-    protected $table = 'tenants';
     protected $primaryKey = 'id';
+    protected $table = "messages";
+    protected $connection = 'pgsql';
 
     protected $fillable = [
-        'company_id',
-        'name',
-        'schema',
-        'subdomain',
-        'guid',
-        'lang',
+        'code',
+        'msg_es',
+        'msg_en',
         'is_active',
+        'created_by',
+        'updated_by',
     ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [];
 
     /**
      * Get the attributes that should be cast.
@@ -32,10 +37,4 @@ class Tenant extends Model
             'is_active' => 'boolean'
         ];
     }
-
-    public function company()
-    {
-        return $this->belongsTo(Company::class, 'company_id', 'id');
-    }
-
 }
