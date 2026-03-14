@@ -25,25 +25,35 @@ class MetadataController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $data = $request->validate([
-            'tenant'     => 'required|string|max:100',
-            'entity'     => 'required|string|max:100',
-            'field'      => 'required|string|max:100',
-            'name'       => 'required|string|max:255',
-            'value'      => 'nullable|string',
-            'type'       => 'nullable|string|max:50',
-            'icon'       => 'nullable|string|max:100',
-            'color'      => 'nullable|string|max:50',
-            'notes'      => 'nullable|string',
-            'config'     => 'nullable|array',
-            'is_active'  => 'boolean',
-            'created_by' => 'nullable|integer',
-            'updated_by' => 'nullable|integer',
-        ]);
+        try {
+            $data = $request->validate([
+                'tenant'     => 'required|string|max:100',
+                'entity'     => 'required|string|max:100',
+                'field'      => 'required|string|max:100',
+                'name'       => 'required|string|max:255',
+                'value'      => 'nullable|string',
+                'type'       => 'nullable|string|max:50',
+                'icon'       => 'nullable|string|max:100',
+                'color'      => 'nullable|string|max:50',
+                'notes'      => 'nullable|string',
+                'config'     => 'nullable|array',
+                'is_active'  => 'boolean',
+                'created_by' => 'nullable|string',
+                'updated_by' => 'nullable|string',
+            ]);
 
-        $metadata = Metadata::create($data);
+            //validar request
+            if (!$data)
+                return response()->json(['message' => 'Invalid data'], 422);
 
-        return response()->json($metadata, 201);
+            $metadata = Metadata::create($data);
+
+            return response()->json($metadata, 201);
+        } catch (\Throwable $th) {
+            //throw $th;
+             return response()->json(['message' => 'Error creating metadata', 'error' => $th->getMessage()], 500);
+        }
+
     }
 
     public function show(Metadata $metadata): JsonResponse
@@ -53,24 +63,28 @@ class MetadataController extends Controller
 
     public function update(Request $request, Metadata $metadata): JsonResponse
     {
-        $data = $request->validate([
-            'tenant'     => 'sometimes|required|string|max:100',
-            'entity'     => 'sometimes|required|string|max:100',
-            'field'      => 'sometimes|required|string|max:100',
-            'name'       => 'sometimes|required|string|max:255',
-            'value'      => 'nullable|string',
-            'type'       => 'nullable|string|max:50',
-            'icon'       => 'nullable|string|max:100',
-            'color'      => 'nullable|string|max:50',
-            'notes'      => 'nullable|string',
-            'config'     => 'nullable|array',
-            'is_active'  => 'boolean',
-            'updated_by' => 'nullable|integer',
-        ]);
+        try {
+            $data = $request->validate([
+                'tenant'     => 'sometimes|required|string|max:100',
+                'entity'     => 'sometimes|required|string|max:100',
+                'field'      => 'sometimes|required|string|max:100',
+                'name'       => 'sometimes|required|string|max:255',
+                'value'      => 'nullable|string',
+                'type'       => 'nullable|string|max:50',
+                'icon'       => 'nullable|string|max:100',
+                'color'      => 'nullable|string|max:50',
+                'notes'      => 'nullable|string',
+                'config'     => 'nullable|array',
+                'is_active'  => 'boolean',
+                'updated_by' => 'nullable|string',
+            ]);
 
-        $metadata->update($data);
+            $metadata->update($data);
 
-        return response()->json($metadata);
+            return response()->json($metadata);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Error updating metadata', 'error' => $th->getMessage()], 500);
+        }
     }
 
     public function destroy(Metadata $metadata): JsonResponse

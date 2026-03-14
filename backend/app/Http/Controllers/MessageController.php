@@ -21,8 +21,8 @@ class MessageController extends Controller
             'msg_es'     => 'required|string',
             'msg_en'     => 'nullable|string',
             'is_active'  => 'boolean',
-            'created_by' => 'nullable|integer',
-            'updated_by' => 'nullable|integer',
+            'created_by' => 'nullable|string',
+            'updated_by' => 'nullable|string',
         ]);
 
         $message = Message::create($data);
@@ -42,7 +42,7 @@ class MessageController extends Controller
             'msg_es'     => 'sometimes|required|string',
             'msg_en'     => 'nullable|string',
             'is_active'  => 'boolean',
-            'updated_by' => 'nullable|integer',
+            'updated_by' => 'nullable|string',
         ]);
 
         $message->update($data);
